@@ -17,7 +17,9 @@ import {
   isPaused,
 } from "@/lib/speechUtils";
 import { generateSpeech } from "@/lib/speechGeneratorUtils";
-import { InfoIcon, AudioWaveform, Wand2 } from "lucide-react";
+import { InfoIcon, AudioWaveform, Wand2, Users } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const SpeechGenerator: React.FC = () => {
   const [topic, setTopic] = useState("");
@@ -290,6 +292,16 @@ const SpeechGenerator: React.FC = () => {
           onRateChange={setRate}
           onPitchChange={setPitch}
         />
+
+        {/* Go to Room button */}
+        <div className="pt-4 flex justify-center">
+          <Button asChild variant="secondary" className="w-full sm:w-auto">
+            <Link to="/room" className="flex items-center justify-center gap-2">
+              <Users className="h-4 w-4" />
+              Go to Room
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Information note */}
