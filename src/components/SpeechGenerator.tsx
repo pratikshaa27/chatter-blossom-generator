@@ -16,10 +16,12 @@ import {
   isSpeaking,
   isPaused,
 } from "@/lib/speechUtils";
-import { InfoIcon, AudioWaveform } from "lucide-react";
+import { generateSpeech } from "@/lib/speechGeneratorUtils";
+import { InfoIcon, AudioWaveform, Wand2 } from "lucide-react";
 
 const SpeechGenerator: React.FC = () => {
-  const [text, setText] = useState("");
+  const [topic, setTopic] = useState("");
+  const [generatedSpeech, setGeneratedSpeech] = useState("");
   const [voices, setVoices] = useState<Voice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<Voice | null>(null);
   const [volume, setVolume] = useState(1);
@@ -27,6 +29,7 @@ const SpeechGenerator: React.FC = () => {
   const [pitch, setPitch] = useState(1);
   const [speaking, setSpeaking] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { toast } = useToast();
   
@@ -93,6 +96,38 @@ const SpeechGenerator: React.FC = () => {
     return () => clearInterval(interval);
   }, [speaking, paused]);
 
+  // Handle topic submission to generate speech
+  const handleGenerateSpeech = () => {
+    if (!topic.trim()) {
+      toast({
+        title: "No Topic",
+        description: "Please enter a topic to generate a speech.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsGenerating(true);
+    try {
+      // Generate speech content based on the topic
+      const speech = generateSpeech(topic);
+      setGeneratedSpeech(speech);
+      toast({
+        title: "Speech Generated",
+        description: "Your speech has been successfully generated.",
+      });
+    } catch (error) {
+      console.error("Speech generation error:", error);
+      toast({
+        title: "Generation Error",
+        description: "An error occurred while generating the speech.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   // Handle play button
   const handlePlay = () => {
     if (!selectedVoice) {
@@ -104,10 +139,10 @@ const SpeechGenerator: React.FC = () => {
       return;
     }
 
-    if (!text.trim()) {
+    if (!generatedSpeech.trim()) {
       toast({
-        title: "No Text",
-        description: "Please enter some text to speak.",
+        title: "No Speech",
+        description: "Please generate a speech first.",
         variant: "destructive",
       });
       return;
@@ -121,7 +156,7 @@ const SpeechGenerator: React.FC = () => {
     } else {
       // Start new speech
       utteranceRef.current = speak(
-        text,
+        generatedSpeech,
         selectedVoice,
         pitch,
         rate,
@@ -187,18 +222,46 @@ const SpeechGenerator: React.FC = () => {
       </div>
 
       <div className="p-5 space-y-6">
-        {/* Text input */}
+        {/* Topic input */}
         <div className="space-y-2">
-          <label htmlFor="speech-text" className="block text-sm font-medium text-foreground">
-            Text to Speak
+          <label htmlFor="speech-topic" className="block text-sm font-medium text-foreground">
+            Enter Topic
           </label>
-          <TextInput
-            value={text}
-            onChange={setText}
-            placeholder="Enter the text you want to convert to speech..."
-            className="w-full"
-          />
+          <div className="flex gap-2">
+            <TextInput
+              value={topic}
+              onChange={setTopic}
+              placeholder="Enter a topic for your speech (e.g., leadership, technology, education)..."
+              className="flex-1"
+            />
+            <button
+              onClick={handleGenerateSpeech}
+              disabled={isGenerating || !topic.trim()}
+              className={cn(
+                "px-4 py-2 rounded-lg bg-primary text-primary-foreground",
+                "flex items-center justify-center gap-2",
+                "transition-all hover:bg-primary/90",
+                "focus:outline-none focus:ring-2 focus:ring-primary/50",
+                (isGenerating || !topic.trim()) && "opacity-70 cursor-not-allowed"
+              )}
+            >
+              <Wand2 className="w-4 h-4" />
+              <span>{isGenerating ? "Generating..." : "Generate"}</span>
+            </button>
+          </div>
         </div>
+
+        {/* Generated speech display */}
+        {generatedSpeech && (
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-foreground">
+              Generated Speech
+            </label>
+            <div className="p-4 bg-accent/30 rounded-lg border border-border/50 text-foreground max-h-60 overflow-y-auto">
+              {generatedSpeech}
+            </div>
+          </div>
+        )}
 
         {/* Voice selector */}
         <div className="space-y-2">
@@ -234,8 +297,8 @@ const SpeechGenerator: React.FC = () => {
         <div className="flex items-start space-x-2 text-sm text-muted-foreground">
           <InfoIcon className="h-4 w-4 mt-0.5 flex-shrink-0" />
           <p>
-            This speech generator uses your browser's built-in speech synthesis capabilities.
-            The available voices will vary depending on your operating system and browser.
+            Enter a topic to generate a speech, then use the audio controls to have it read aloud.
+            Try topics like "leadership", "technology", "education", "health", or "environment".
           </p>
         </div>
       </div>

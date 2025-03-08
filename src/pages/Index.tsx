@@ -11,11 +11,11 @@ const Index = () => {
             SPEECH GENERATOR
           </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-balance">
-            Transform Text to Speech
+            Generate Ready-Made Speeches
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
-            A minimalist speech generator with a focus on elegance and simplicity.
-            Convert any text to natural-sounding speech with customizable voices and settings.
+            Enter a topic and get an instant speech for your presentation, meeting, or event.
+            Customize voice settings and have your speech read aloud with natural-sounding speech synthesis.
           </p>
         </div>
         
@@ -23,7 +23,7 @@ const Index = () => {
         
         <div className="text-center text-sm text-muted-foreground pt-8 animate-fade-in">
           <p>
-            Using the Web Speech API with custom design.
+            Using custom speech templates with Web Speech API for delivery.
           </p>
         </div>
       </div>
